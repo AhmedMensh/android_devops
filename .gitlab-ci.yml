@@ -42,9 +42,8 @@ unitTests:
 static_analysis:
   stage: quality_assurance
   script:
-#    - /.gradlew lint
-    - /.gradlew detekt
-
+    - ./gradlew lint
+    - ./gradlew detekt
   artifacts:
     paths:
     - app/build/reports/
