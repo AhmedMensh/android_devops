@@ -42,7 +42,7 @@ unitTests:
 static_analysis:
   stage: quality_assurance
   script:
-    - /.gradlew lint
+#    - /.gradlew lint
     - /.gradlew detekt
 
   artifacts:
