@@ -33,3 +33,8 @@ build:
   artifacts:
     paths:
       - app/build/outputs/
+
+unitTests:
+  stage: test
+  script:
+    - ./gradlew test
