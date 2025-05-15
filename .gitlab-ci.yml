@@ -18,8 +18,6 @@ before_script:
   - sdkmanager --verbose "platforms;android-${ANDROID_COMPILE_SDK}" "platform-tools" "build-tools;${ANDROID_BUILD_TOOLS}" || true
   - apt-get update && apt-get install -y curl unzip
   - curl -sL https://firebase.tools | bash
-  - export ANDROID_HOME="$CI_PROJECT_DIR/android-sdk"
-  - mkdir -p "$ANDROID_HOME"
   - chmod +x ./gradlew
 
 
