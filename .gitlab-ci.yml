@@ -6,8 +6,6 @@ variables:
   ANDROID_SDK_TOOLS: "11076708"
 
 before_script:
-  - apt-get update && apt-get install -y curl unzip
-  - curl -sL https://firebase.tools | bash
   - apt-get update -qq && apt-get install -y wget tar unzip lib32stdc++6 lib32z1
   - export ANDROID_SDK_ROOT="${PWD}/android-home"
   - mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
@@ -18,6 +16,10 @@ before_script:
   - sdkmanager --verbose --version
   - yes | sdkmanager --licenses || true
   - sdkmanager --verbose "platforms;android-${ANDROID_COMPILE_SDK}" "platform-tools" "build-tools;${ANDROID_BUILD_TOOLS}" || true
+  - apt-get update && apt-get install -y curl unzip
+  - curl -sL https://firebase.tools | bash
+  - export ANDROID_HOME="$CI_PROJECT_DIR/android-sdk"
+  - mkdir -p "$ANDROID_HOME"
   - chmod +x ./gradlew
 
 
