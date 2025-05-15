@@ -2,6 +2,8 @@ package com.example.androiddevops
 
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -35,7 +37,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Button(onClick = {
-        throw RuntimeException("Test Crash")
+        Log.d("TAG", "Greeting: ")
     }) {
         Text(
             text = "Hello $name!",
