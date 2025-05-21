@@ -65,7 +65,6 @@ firebase_deploy:
     - echo "$GOOGLE_APPLICATION_CREDENTIALS_BASE64" | base64 -d > service-account.json
     - export GOOGLE_APPLICATION_CREDENTIALS="$PWD/service-account.json"
     - git log -1 --pretty=%B > release_notes.txt
-    - git log -1 --pretty=format:"%s%nAuthor: %an <%ae>%n" > release_notes.txt
     # Get the latest commit message and save it as release notes
     - git log -1 --pretty=%B > release_notes.txt
     # Add version information to release notes
