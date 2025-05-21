@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.crashlytics)
     id("com.google.gms.google-services")
     alias(libs.plugins.compose.compiler)
-//    id("com.google.firebase.appdistribution")
 }
 
 android {
@@ -54,11 +53,6 @@ android {
                 )
                 signingConfig = signingConfigs.getByName("release")
                 
-                // Add Firebase App Distribution configuration
-//                firebaseAppDistribution {
-//                    groups = "testers"
-//                    releaseNotes = "Automated deployment from GitLab CI"
-//                }
             }
         }
     } else {
