@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,27 +15,48 @@ android {
     namespace = "com.example.androiddevops"
     compileSdk = 35
 
-    defaultConfig {
-        applicationId = "com.example.androiddevops"
-        minSdk = 29
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+    val versionPropertiesFile = file("version.properties")
+    if (versionPropertiesFile.canRead()) {
+        val versionProperties = Properties()
+        versionProperties.load(FileInputStream(versionPropertiesFile))
+        val name = versionProperties.getProperty("VERSION_NAME")
+        val code = versionProperties.getProperty("VERSION_CODE").toInt()
+        versionProperties.setProperty("VERSION_CODE", code.toString())
+//        versionProperties.store(versionPropertiesFile.writer(), null)
+        defaultConfig {
+            applicationId = "com.example.androiddevops"
+            minSdk = 29
+            targetSdk = 35
+            versionCode = code
+            versionName = name
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            vectorDrawables {
+                useSupportLibrary = true
+            }
         }
-    }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+        signingConfigs {
+            create("release") {
+                storeFile = file("../devops_key.jks")
+                storePassword = "123456"
+                keyAlias = "key"
+                keyPassword = "123456"
+            }
         }
+
+        buildTypes {
+            release {
+                isMinifyEnabled = false
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+    } else {
+        throw GradleException("version.properties file not found")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -54,6 +78,27 @@ android {
     }
 }
 
+fun increaseVersionCode() {
+    gradle.taskGraph.whenReady {
+        if (gradle.taskGraph.hasTask("assembleRelease")) {
+            val versionPropertiesFile = file("version.properties")
+            if (versionPropertiesFile.canRead()) {
+                val versionProperties = Properties()
+                versionProperties.load(FileInputStream(versionPropertiesFile))
+                val build = versionProperties.getProperty("VERSION_BUILD").toInt().plus(1)
+                val code = versionProperties.getProperty("VERSION_CODE").toInt().plus(1)
+                versionProperties.setProperty("VERSION_BUILD", build.toString())
+                versionProperties.setProperty("VERSION_CODE", code.toString())
+                versionProperties.store(versionPropertiesFile.writer(), null)
+            }else{
+                throw GradleException("version.properties file not found")
+            }
+        }
+    }
+}
+tasks.register("doIncrementVersionCode"){
+    increaseVersionCode()
+}
 dependencies {
 
     implementation(libs.androidx.core.ktx)

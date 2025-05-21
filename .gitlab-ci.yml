@@ -6,6 +6,7 @@ variables:
   ANDROID_SDK_TOOLS: "11076708"
 
 before_script:
+  - ./gradlew doIncrementVersionCode
   - apt-get update -qq && apt-get install -y wget tar unzip lib32stdc++6 lib32z1
   - export ANDROID_SDK_ROOT="${PWD}/android-home"
   - mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
