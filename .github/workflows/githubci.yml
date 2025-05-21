@@ -12,12 +12,10 @@ jobs:
     name: Build APK
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@main
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@main
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -30,7 +28,7 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@main
         with:
           name: app-release
           path: app/build/outputs/apk/release/app-release.apk
@@ -40,10 +38,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@main
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -57,7 +55,7 @@ jobs:
 
       - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@main
         with:
           name: test-results
           path: app/build/reports/tests/
@@ -67,10 +65,10 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@main
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -87,7 +85,7 @@ jobs:
 
       - name: Upload Analysis Results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@main
         with:
           name: analysis-results
           path: |
@@ -96,16 +94,14 @@ jobs:
 
   deploy:
     name: Deploy to Firebase
-    needs: [ build, test, static_analysis ]
+    needs: [build, test, static_analysis]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' # Only deploy from main branch
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@main
 
       - name: Download APK
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@main
         with:
           name: app-release
           path: app/build/outputs/apk/release/
@@ -157,7 +153,7 @@ jobs:
 
       - name: Upload Pipeline Artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@main
         with:
           name: pipeline-artifacts
           path: |
