@@ -55,9 +55,13 @@ static_analysis:
 firebase_deploy:
   stage: deploy
   script:
+    # Decode and save the service account credentials
+    - echo "$GOOGLE_APPLICATION_CREDENTIALS_BASE64" | base64 -d > service-account.json
+    - export GOOGLE_APPLICATION_CREDENTIALS="$PWD/service-account.json"
+    # Deploy to Firebase App Distribution
     - |
-      chmod +x ./gradlew
       firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
       --app 1:715489346527:android:b1523bff01e22fe47d3a6a \
-      --groups "testers" \
-      --token "$FIREBASE_TOKEN"
+      --groups "testers"
+  after_script:
+    - rm -f service-account.json # Clean up the service account file
