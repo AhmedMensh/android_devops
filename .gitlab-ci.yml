@@ -16,20 +16,71 @@ before_script:
   - sdkmanager --verbose --version
   - yes | sdkmanager --licenses || true
   - sdkmanager --verbose "platforms;android-${ANDROID_COMPILE_SDK}" "platform-tools" "build-tools;${ANDROID_BUILD_TOOLS}" || true
+  - apt-get update && apt-get install -y curl unzip
+  - curl -sL https://firebase.tools | bash
   - chmod +x ./gradlew
 
 
 stages:
   - build
   - test
-  - static_analysis
+  - quality_assurance
+  - deploy
   - fabric
   - prod
 
 build:
   stage: build
   script:
-    - ./gradlew assembleDebug
+    - ./gradlew assembleRelease
   artifacts:
     paths:
       - app/build/outputs/
+
+unitTests:
+  stage: test
+  script:
+    - ./gradlew test
+
+static_analysis:
+  stage: quality_assurance
+  script:
+    - ./gradlew lint
+    - ./gradlew detekt
+  artifacts:
+    paths:
+    - app/build/reports/
+
+
+firebase_deploy:
+  stage: deploy
+  script:
+    # Decode and save the service account credentials
+    #$GOOGLE_APPLICATION_CREDENTIALS_BASE64 generated from
+    #Go to Firebase Console > Project Settings > Service Accounts
+    #Click "Generate New Private Key"
+    #Save the JSON file
+    #Create CI/CD Variable with key GOOGLE_APPLICATION_CREDENTIALS_BASE64 and value from extracting the json file using this command
+    #[Convert]::ToBase64String([System.IO.File]::ReadAllBytes("path\to\firebase-service-account.json"))
+    - echo "$GOOGLE_APPLICATION_CREDENTIALS_BASE64" | base64 -d > service-account.json
+    - export GOOGLE_APPLICATION_CREDENTIALS="$PWD/service-account.json"
+    - git log -1 --pretty=%B > release_notes.txt
+    # Get the latest commit message and save it as release notes
+    # Add version information to release notes
+    - VERSION_NAME=$(grep "VERSION_NAME" app/version.properties | cut -d'=' -f2)
+    - VERSION_CODE=$(grep "VERSION_CODE" app/version.properties | cut -d'=' -f2)
+    - |
+      echo "
+      Version: ${VERSION_NAME} (${VERSION_CODE})
+      Commit: $(git rev-parse --short HEAD)
+      Build Date: $(date)
+      " >> release_notes.txt
+    # Deploy to Firebase App Distribution
+    - |
+      firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
+      --app 1:715489346527:android:b1523bff01e22fe47d3a6a \
+      --groups "testers" \
+      --release-notes-file release_notes.txt
+  after_script:
+    - rm -f service-account.json # Clean up the service account file
+    - rm -f release_notes.txt # Clean up release notes file
